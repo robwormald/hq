@@ -1,10 +1,10 @@
 <header class="travis-header">
-PRs
+{{repo?.full_name}}
 </header>
 
 <div class="count">
-  200
-  <sub>Untriaged PRs</sub>
+  {{repo?.open_issues_count}}
+  <sub>Open Issues</sub>
 </div>
 
 <app-status status="passing"></app-status>

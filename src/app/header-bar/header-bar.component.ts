@@ -1,6 +1,6 @@
 import { ViewChildren, HostBinding, Component, Output, EventEmitter } from '@angular/core';
 import { query, stagger, animateChild, group, animate, transition, trigger, style } from '@angular/animations';
-import {ProjectPipe} from '../project.pipe';
+//import {ProjectPipe} from '../../project.pipe';
 
 @Component({
   selector: 'app-header-bar',
@@ -8,32 +8,32 @@ import {ProjectPipe} from '../project.pipe';
   styleUrls: ['./header-bar.component.scss'],
   animations: [
     trigger('container', [
-      transition(':enter', []),
-      transition('* => open', [
-        query('.expanded-area', [
-          query('.list-item', style({ transform: 'translateY(-50%)', opacity: 0 })),
-          style({ overflow: 'hidden', height: '0px' }),
-          group([
-            animate('0.5s cubic-bezier(0.35, 0, 0.25, 1)', style('*')),
-            query('.list-item', [
-              stagger(50, animate('0.3s cubic-bezier(0.35, 0, 0.25, 1)', style('*')))
-            ])
-          ])
-        ])
-      ]),
-      transition('* => closed', [
-        query('.expanded-area', [
-          style({ overflow: 'hidden', height: '!' }),
-          group([
-            query('.list-item', [
-              stagger(20, [
-                animate('0.2s', style({ transform: 'translateY(-50%)', opacity: 0 }))
-              ])
-            ]),
-            animate('0.5s cubic-bezier(0.35, 0, 0.25, 1)', style({ height: '0px' }))
-          ])
-        ])
-      ]),
+      // transition(':enter', []),
+      // transition('* => open', [
+      //   query('.expanded-area', [
+      //     query('.list-item', style({ transform: 'translateY(-50%)', opacity: 0 })),
+      //     style({ overflow: 'hidden', height: '0px' }),
+      //     group([
+      //       animate('0.5s cubic-bezier(0.35, 0, 0.25, 1)', style('*')),
+      //       query('.list-item', [
+      //         stagger(50, animate('0.3s cubic-bezier(0.35, 0, 0.25, 1)', style('*')))
+      //       ])
+      //     ])
+      //   ])
+      // ]),
+      // transition('* => closed', [
+      //   query('.expanded-area', [
+      //     style({ overflow: 'hidden', height: '!' }),
+      //     group([
+      //       query('.list-item', [
+      //         stagger(20, [
+      //           animate('0.2s', style({ transform: 'translateY(-50%)', opacity: 0 }))
+      //         ])
+      //       ]),
+      //       animate('0.5s cubic-bezier(0.35, 0, 0.25, 1)', style({ height: '0px' }))
+      //     ])
+      //   ])
+      // ]),
     ])
   ]
 })
@@ -58,7 +58,7 @@ export class HeaderBarComponent {
     { type: 'person', title: 'Igor Minar' },
   ];
 
-  filter = new ProjectPipe();
+  //filter = new ProjectPipe();
 
   activeArea: string;
 
@@ -84,7 +84,7 @@ export class HeaderBarComponent {
   searchKeyDown(event: any) {
     switch (event.keyCode) {
       case 13: // enter key
-        const result = this.filter.transform(this.options, this.filterCriteria)[0];
+        const result = this.options[0];
         if (result) {
           this.select(result);
         }
