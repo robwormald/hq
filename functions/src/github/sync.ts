@@ -10,22 +10,52 @@ function installApp(ref:admin.database.Reference){
 
   client.get('https://api.github.com/app')
     .then(endpoint => {
-      console.log(endpoint.data);
+      console.log(endpoint);
     })
     .catch(err => {
       console.log(err)
     })
 }
 
+async function fetchAll(client, url){
+
+}
+
+async function updateAppData(appClient){
+  const appData = await appClient.get(`https://api.github.com/app`);
+  console.log(appData);
+  return appData;
+}
+
 async function onCreateInstallation(installationRef:functions.database.DeltaSnapshot){
   const installation = installationRef.val();
   const appClient = getGithubAppClient();
-  const client = await getGithubInstallationClient(installation.id);
-  const installationData = await appClient.get(`https://api.github.com/app/installations/${installation.id}`)
-    .then(res => res.data);
+  const installationClient = await getGithubInstallationClient(installation.id);
 
-  await installationRef.adminRef.set(installationData);
+  const appData = await updateAppData(appClient);
 
+  const [installationData, installationRepoData] = await Promise.all([
+    appClient.get(`https://api.github.com/app/installations/${installation.id}`),
+    installationClient.get(`https://api.github.com/installation/repositories`)
+  ]);
+
+  const installationAdminRef = installationRef.adminRef
+
+  await installationAdminRef.set(installationData);
+
+  const githubDataRef = installationRef.adminRef.root.child('github_data');
+
+  const reposRef = githubDataRef.child('repository');
+
+
+  await Promise.all((installationRepoData.repositories as any[]).map(async repo => {
+    await installationAdminRef
+    .child(`repositories/${repo.id}`)
+    .set(true);
+    await reposRef
+      .child(repo.id)
+      .set(repo);
+  }));
 }
 
 export const github_app_install = functions.database.ref('github_app/installations/{id}')
