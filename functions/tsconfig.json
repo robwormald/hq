@@ -5,7 +5,9 @@
 		"outDir": "lib"
 	},
 	"include": [
-		"index.ts",
-		"src/**/*.ts"
-	]
+    "src/api.ts"
+  ],
+  "exclude": [
+    "node_modules/**"
+  ]
 }

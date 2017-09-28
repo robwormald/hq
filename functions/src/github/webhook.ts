@@ -5,9 +5,8 @@ import * as functions from 'firebase-functions'
 import * as firebase from 'firebase'
 import * as admin from 'firebase-admin'
 import * as PubSub from '@google-cloud/pubsub'
-// Instantiates a client
 
-admin.initializeApp(functions.config().firebase);
+// Instantiates a client
 const pubsub = PubSub();
 const topic = pubsub.topic('github-events');
 
@@ -19,7 +18,7 @@ function parseRequest(request:functions.Request){
   return action;
 }
 
-function handleGithubRequest(request:functions.Request, response:functions.Response): void {
+function handleGithubWebhookEvent(request:functions.Request, response:functions.Response): void {
 	if(request.method === 'OPTIONS'){
 		response.sendStatus(200);
 		return;
@@ -41,4 +40,4 @@ function handleGithubRequest(request:functions.Request, response:functions.Respo
 
 
 
-export const githubWebhook = functions.https.onRequest(handleGithubRequest);
+export const github_webhook = functions.https.onRequest(handleGithubWebhookEvent);
