@@ -8,7 +8,7 @@
 
 			{
 				"source": "/api/webhooks/github",
-				"function": "githubWebhook"
+				"function": "github_webhook"
 			},
 			{
         "source": "**",

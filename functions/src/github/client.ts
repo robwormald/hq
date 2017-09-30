@@ -8,21 +8,24 @@ const makeUrl = segment => `https://api.github.com/${segment}`
 let client:any;
 
 function getNextPage(linksHeader = '') {
-  const links = linksHeader.split(/\s*,\s*/); // splits and strips the urls
-  return links.reduce((nextUrl, link) => {
+  console.log('linksheader', linksHeader);
+  const links = linksHeader.split(/\s*,\s*/);
+  const nextPage = links.reduce((nextUrl, link) => {
     if (link.search(/rel="next"/) !== -1) {
       return (link.match(/<(.*)>/) || [])[1];
     }
     return nextUrl;
   }, undefined);
+  console.log('next page', nextPage);
+  return nextPage;
 }
 
-function generateJWT(key){
+function generateJWT(key, appId){
   const now = Math.floor(Date.now() / 1000);
   const payload = {
     iat: now,
     exp: now + (5 * 60),
-    iss: 4270
+    iss: appId
   }
   return jwt.sign(payload, key, { algorithm: 'RS256' });
 
@@ -62,7 +65,8 @@ function createAuthClient(token){
 export function getGithubAppClient(){
   if(!client){
     const key = functions.config().github.key;
-    const token = generateJWT(key);
+    const app_id = functions.config().github.app_id;
+    const token = generateJWT(key, app_id);
     client = createAuthClient(token);
   }
   return client;

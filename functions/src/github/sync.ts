@@ -2,6 +2,11 @@ import * as functions from 'firebase-functions'
 import * as firebase from 'firebase'
 import * as admin from 'firebase-admin'
 import {getGithubAppClient, getGithubInstallationClient} from './client'
+import * as PubSub from '@google-cloud/pubsub'
+
+// Instantiates a client
+const pubsub = PubSub();
+const topic = pubsub.topic('github-events');
 
 function syncInstallation(){}
 
@@ -45,16 +50,21 @@ async function onCreateInstallation(installationRef:functions.database.DeltaSnap
 
   const githubDataRef = installationRef.adminRef.root.child('github_data');
 
-  const reposRef = githubDataRef.child('repository');
+  const repoRef = githubDataRef.child('repository');
+  const reposRef = githubDataRef.child('repos')
 
 
   await Promise.all((installationRepoData.repositories as any[]).map(async repo => {
     await installationAdminRef
     .child(`repositories/${repo.id}`)
     .set(true);
-    await reposRef
+    await repoRef
       .child(repo.id)
       .set(repo);
+    await reposRef
+    .child(repo.full_name)
+    .set(repo);
+    await repo
   }));
 }
 
