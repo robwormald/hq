@@ -1,13 +1,30 @@
 import * as jwt from 'jsonwebtoken'
-import axios from 'axios'
+import axios, {AxiosRequestConfig, AxiosInstance} from 'axios'
 import * as admin from 'firebase-admin'
 import * as functions from 'firebase-functions'
+import {Observable} from 'rxjs'
 
 const makeUrl = segment => `https://api.github.com/${segment}`
 
+export type AuthClient = AxiosInstance;
+
+const createAuthClient = (token:string) => {
+  return axios.create({
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github.machine-man-preview+json'
+    }
+  });
+}
+
+export function getAppClient():Observable<AxiosInstance>{
+  return getAppAuthToken()
+    .map(createAuthClient);
+}
+
 let client:any;
 
-function getNextPage(linksHeader = '') {
+export function getNextPage(linksHeader = '') {
   console.log('linksheader', linksHeader);
   const links = linksHeader.split(/\s*,\s*/);
   const nextPage = links.reduce((nextUrl, link) => {
@@ -16,7 +33,7 @@ function getNextPage(linksHeader = '') {
     }
     return nextUrl;
   }, undefined);
-  console.log('next page', nextPage);
+
   return nextPage;
 }
 
@@ -31,53 +48,49 @@ function generateJWT(key, appId){
 
 }
 
-function createAuthClient(token){
-   console.log('creating auth client with token',token );
-   const client = axios.create({
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Accept': 'application/vnd.github.machine-man-preview+json'
-    }
-  });
-  return {
-    get(url){
-      return client.get(url)
+// function createAuthClient(token){
+//    console.log('creating auth client with token',token );
+//    const client =
+//   return {
+//     get(url){
+//       return client.get(url)
 
-        .then(res => res.data)
-    },
-    async getAll(url, selectorFn = x => x){
-      const {headers, data} = await client.get(url);
-      let responseData = [];
-      let nextPage = getNextPage(headers.link);
-      while(nextPage){
-        const {headers, data} = await client.get(nextPage);
-        nextPage = getNextPage(headers.link);
-        responseData = Array.prototype.push.apply(responseData, selectorFn(data))
-      }
-      return responseData;
-    },
-    post(url, data){
-      return client.post(url, data).then(res => res.data);
-    }
-  };
-}
+//         .then(res => res.data)
+//     },
+//     async getAll(url, selectorFn = x => x){
+//       const {headers, data} = await client.get(url);
+//       let responseData = [];
+//       let nextPage = getNextPage(headers.link);
+//       while(nextPage){
+//         const {headers, data} = await client.get(nextPage);
+//         nextPage = getNextPage(headers.link);
+//         responseData = Array.prototype.push.apply(responseData, selectorFn(data))
+//       }
+//       return responseData;
+//     },
+//     post(url, data){
+//       return client.post(url, data).then(res => res.data);
+//     }
+//   };
+// }
 
-export function getGithubAppClient(){
-  if(!client){
-    const key = functions.config().github.key;
-    const app_id = functions.config().github.app_id;
-    const token = generateJWT(key, app_id);
-    client = createAuthClient(token);
-  }
-  return client;
+export function getAppAuthToken():Observable<string>{
+  const key = functions.config().github.key;
+  const app_id = functions.config().github.app_id;
+  return Observable.of(generateJWT(key, app_id));
 }
 
 
-export async function getGithubInstallationClient(installationId){
-  const appClient = getGithubAppClient();
-  const {token} = await appClient.post(makeUrl(`installations/${installationId}/access_tokens`));
-  console.log('install token data', token);
-  return createAuthClient(token);
+export function getInstallationClient(installationId):Observable<AuthClient>{
+  return getAppClient()
+    .switchMap(appClient =>
+      appClient.post(makeUrl(`installations/${installationId}/access_tokens`)),
+      (req, res) => createAuthClient(res.data.token)
+    );
 }
+
+
+
+
 
 

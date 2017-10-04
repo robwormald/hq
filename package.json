@@ -25,11 +25,13 @@
     "@angular/platform-browser-dynamic": "^4.4.3",
     "@angular/platform-server": "^4.4.3",
     "@angular/router": "^4.4.3",
+    "@google-cloud/firestore": "^0.8.1",
     "@ngrx/effects": "^4.0.5",
     "@ngrx/store": "^4.0.3",
     "angularfire2": "next",
     "core-js": "^2.4.1",
     "firebase": "^4.2.0",
+    "lit-html": "^0.6.0",
     "rxjs": "^5.1.0",
     "zone.js": "^0.8.4"
   },
@@ -51,7 +53,7 @@
     "protractor": "~5.1.0",
     "ts-node": "~2.0.0",
     "tslint": "~4.5.0",
-    "typescript": ">=2.1.0 <2.4.0"
+    "typescript": "2.4"
   },
   "resolutions": {
     "rxjs": "5.4.3",

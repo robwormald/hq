@@ -9,6 +9,10 @@
 			{
 				"source": "/api/webhooks/github",
 				"function": "github_webhook"
+      },
+      {
+				"source": "/api/webhooks/:provider",
+				"function": "ci_webhook"
 			},
 			{
         "source": "**",
