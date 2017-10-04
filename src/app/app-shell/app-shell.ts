@@ -32,9 +32,6 @@ export class NgHqAppShellModule {
   constructor(public store: Store<any>, public resolver:ComponentFactoryResolver){}
 
   ngDoBootstrap(applicationRef:ApplicationRef){
-    this.store.dispatch({
-      type: AppShellActions.WATCH_CONNECTION_STATE
-    });
 
     const appShellFactory = this.resolver.resolveComponentFactory(AppShellComponent);
 

@@ -2,12 +2,13 @@ import * as ng from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser'
 import {HqWidgetRegistry} from './hq-dashboard-widget.providers'
 import {AngularFireDatabase} from 'angularfire2/database'
-import {Observable} from 'rxjs/Rx';
+import {Observable, Subscription} from 'rxjs/Rx';
 
 @ng.Component({
   selector: 'hq-widget',
   templateUrl: './hq-widget.component.html',
-  styleUrls: ['./hq-widget.component.scss']
+  styleUrls: ['./hq-widget.component.scss'],
+  changeDetection: ng.ChangeDetectionStrategy.OnPush
 })
 export class HqWidgetComponent {
   constructor(
@@ -24,45 +25,48 @@ export class HqWidgetComponent {
   @ng.HostBinding('attr.error-state')
   errorState = null;
 
-  ngOnInit(){
-    console.log(this.target);
-    console.log(this.widget);
-  }
+  private _activeWidget:ng.ComponentRef<any>;
+  private _activeSubscription:Subscription;
+
 
   ngOnChanges({widget}:{widget: ng.SimpleChange }){
     if(widget.firstChange){
       this.loadWidget();
+      return;
+    }
+    if(this._activeWidget){
+      this._activeWidget.destroy();
+
+    }
+    if(this._activeSubscription){
+      this._activeSubscription.unsubscribe();
     }
   }
 
   loadWidget(){
     const selector = this.widget.selector;
     const datasources = this.widget.datasource;
-    console.log('sources',datasources)
     const datastream = combineLatestObj(Object.keys(datasources)
       .reduce((all, key) => {
-        console.log('key', key)
         const source = datasources[key];
         if(key === 'src'){
           all[key] = Observable.of(this.sanitize.bypassSecurityTrustResourceUrl(source));
-          console.log('yes')
           return all;
         }
         const stream = this.af.object(`/${source}`)
           .valueChanges()
-          .do(state => console.log('value change', state));
         all[key] = stream;
         return all;
       }, {}));
 
     const factory = this.widgetRegistry.getComponentFactory(selector);
-    const widgetRef = this.target.createComponent(factory);
+    this._activeWidget = this.target.createComponent(factory);
 
-    datastream
-      .forEach(currentWidgetState => {
-        Object.assign(widgetRef.instance, currentWidgetState);
-        widgetRef.changeDetectorRef.detectChanges();
-      })
+    this._activeSubscription = datastream
+      .subscribe(currentWidgetState => {
+        Object.assign(this._activeWidget.instance, currentWidgetState);
+        this._activeWidget.changeDetectorRef.detectChanges();
+      });
 
 
 
