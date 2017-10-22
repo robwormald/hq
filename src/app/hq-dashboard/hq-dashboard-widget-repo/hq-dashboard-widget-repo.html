@@ -1,10 +1,10 @@
-<header class="travis-header">
-{{repo?.full_name}}
-</header>
-
-<div class="count">
-  {{repo?.open_issues_count}}
-  <sub>Open Issues</sub>
-</div>
-
-<app-status status="passing"></app-status>
+<ng-container *ngIf="(state$ | async) as state">
+  <header class="travis-header">
+    {{state.repo?.full_name}}
+  </header>
+  <div class="count">
+    {{state.repo?.open_issues_count}}
+    <sub>Open Issues</sub>
+  </div>
+  <app-status status="passing"></app-status>
+</ng-container>

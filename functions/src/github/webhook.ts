@@ -9,6 +9,7 @@ import * as PubSub from '@google-cloud/pubsub'
 // Instantiates a client
 const pubsub = PubSub();
 const topic = pubsub.topic('github-events');
+const ref = firebase.database().ref('/github-events')
 
 function parseRequest(request:functions.Request){
   const action = request.body;

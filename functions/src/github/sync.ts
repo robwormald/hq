@@ -26,7 +26,6 @@ const syncInstallation = (id:number, githubDataRef:admin.database.Reference) =>
       .concatMap(cacheRepo(id, githubDataRef))
 )
 
-     // .concatMap(cacheRepo(id, githubDataRef));
 
 const readInstallationRepos = (id, client:AuthClient):Observable<{id:string}> =>
   Observable.of({nextUrl: 'https://api.github.com/installation/repositories'})

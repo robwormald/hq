@@ -61,16 +61,8 @@ export class HqWidgetComponent {
 
     const factory = this.widgetRegistry.getComponentFactory(selector);
     this._activeWidget = this.target.createComponent(factory);
-
-    this._activeSubscription = datastream
-      .subscribe(currentWidgetState => {
-        Object.assign(this._activeWidget.instance, currentWidgetState);
-        this._activeWidget.changeDetectorRef.detectChanges();
-      });
-
-
-
-
+    this._activeWidget.instance.state$ = datastream;
+    datastream.subscribe(state => console.log('statestream', state));
   }
 
 }

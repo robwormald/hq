@@ -1,21 +1,18 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { Observable } from 'rxjs/Rx'
 
 @Component({
   selector: 'hq-dashboard-widget-repo',
   templateUrl: './hq-dashboard-widget-repo.html',
   styleUrls: ['./hq-dashboard-widget-repo.scss']
 })
-export class HqDashboardWidgetRepo implements OnInit {
+export class HqDashboardWidgetRepo {
 
   constructor() { }
 
-  @Input() repo:any = null;
+  @Input() state$:Observable<any>;
 
-  ngOnInit() {
+  @Input() displayType: string;
 
-  }
-  ngOnChanges(){
-    console.log('component state', this.repo)
-  }
 
 }
