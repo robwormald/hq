@@ -1,17 +1,21 @@
-import * as functions from 'firebase-functions'
-import * as firebase from 'firebase'
 import * as admin from 'firebase-admin'
+import * as functions from 'firebase-functions'
 import {Observable} from 'rxjs'
 import {getInstallationClient, AuthClient, getNextPage} from './client'
-import * as PubSub from '@google-cloud/pubsub'
+import {GithubActions, GithubAction} from './actions'
+export function githubSyncEffects(actions:Observable<any>){
+  return actions.do(v => console.log(v)).switchMap(() => Observable.empty())
+}
 
-// Instantiates a client
-const pubsub = PubSub();
-const topic = pubsub.topic('github-events');
+function handleAction(action:GithubAction){
+  switch(action.type){
+    case GithubActions.Sync:
+      console.log('sync');
+    case GithubActions.UpdateIssue:
+      console.log('issue', action)
+  }
+}
 
-const createTopicObserver = (topicId:string) => ({
-
-})
 
 
 const getAll = (client:AuthClient) => ({nextUrl, data}) =>

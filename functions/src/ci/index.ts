@@ -8,7 +8,7 @@ import * as PubSub from '@google-cloud/pubsub'
 
 // Instantiates a client
 const pubsub = PubSub();
-const topic = pubsub.topic('github-events');
+const topic = pubsub.topic('ci-events');
 
 function parseRequest(request:functions.Request){
   const action = request.body;
@@ -20,7 +20,7 @@ function parseRequest(request:functions.Request){
 
 function handleCIWebhookEvent(request:functions.Request, response:functions.Response): void {
   console.log(request.body);
-
+  topic.publish(JSON.stringify(request.body));
   response.sendStatus(203);
 }
 

@@ -1,6 +1,8 @@
+import { Action } from "../action";
+
 
 //Webhook Event names from https://developer.github.com/webhooks/#events
-export const enum GitHubWebhookEventType {
+export const enum GithubWebhookEventTypes {
 	CommitComment = 'commit_comment',
 	Create = 'create',
 	Delete = 'delete',
@@ -8,7 +10,8 @@ export const enum GitHubWebhookEventType {
 	DeploymentStatus = 'deployment_status',
 	Fork = 'fork',
 	Gollum = 'gollum',
-	Installation = 'installation_repositories',
+  Installation = 'installation',
+  InstallationRepositories = 'installation_repositories',
 	IssueComment = 'issue_comment',
 	Issues = 'issues',
 	Label = 'label',
@@ -36,15 +39,43 @@ export const enum GitHubWebhookEventType {
 
 }
 
-export interface GithubWebhookBaseEvent {
-	type: GitHubWebhookEventType
+export type GithubWebhookEvent =
+  GithubWebhookInstallationEvent |
+  GithubWebhookInstallationRepoEvent |
+  GithubWebhookIssueEvent;
+
+
+
+export interface GithubWebhookInstallationEvent {
+  type: GithubWebhookEventTypes.Installation;
+  payload: GithubWebhookBasePayload
+}
+
+export interface GithubWebhookInstallationRepoEvent {
+  type: GithubWebhookEventTypes.InstallationRepositories;
+  payload: GithubWebhookBasePayload
+}
+
+export interface GithubWebhookIssueEvent {
+  type: GithubWebhookEventTypes.Issues;
+  payload: GithubIssueActionPayload
 }
 
 
+export interface GithubWebhookEventBase extends Action {
+  type: GithubWebhookEventTypes;
+  payload: GithubWebhookBasePayload
+}
+
+export interface GithubWebhookBasePayload {
+  installation: GithubInstallation;
+}
 
 export interface GithubEntity {
   id: number;
 }
+
+export interface GithubInstallation extends GithubEntity {}
 
 export interface GithubIssue extends GithubEntity {
   number: number;
@@ -53,16 +84,15 @@ export interface GithubIssue extends GithubEntity {
 }
 
 export interface GithubIssueAction {
-  type: GitHubWebhookEventType.Issues,
+  type: GithubWebhookEventTypes.Issues,
   payload: GithubIssueActionPayload
 }
 
-export interface GithubIssueActionPayload {
+export interface GithubIssueActionPayload extends GithubWebhookBasePayload {
   issue: GithubIssue,
-  repository: any
+  repository: GithubEntity
 }
 
-export type GithubWebhookMessage = GithubIssueAction
 
 
 export interface User {

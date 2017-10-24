@@ -4,8 +4,8 @@
   "dependencies": {
     "@google-cloud/pubsub": "^0.13.2",
     "axios": "^0.16.2",
-    "firebase-admin": "~4.2.1",
-    "firebase-functions": "^0.5.7",
+    "firebase-admin": "^5.4.2",
+    "firebase-functions": "^0.7.1",
     "jsonwebtoken": "^8.0.1",
     "rxjs": "^5.4.3",
     "typescript": "2.4"

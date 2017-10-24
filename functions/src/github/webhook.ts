@@ -2,43 +2,20 @@
  * Github Webhook API
  */
 import * as functions from 'firebase-functions'
-import * as firebase from 'firebase'
-import * as admin from 'firebase-admin'
-import * as PubSub from '@google-cloud/pubsub'
+import {Observable} from 'rxjs'
+import {GithubWebhookAction} from './actions'
+import {GithubWebhookEventTypes} from './events'
+import {HqTopic} from '../topics'
+import {Action} from '../action'
 
-// Instantiates a client
-const pubsub = PubSub();
-const topic = pubsub.topic('github-events');
-const ref = firebase.database().ref('/github-events')
-
-function parseRequest(request:functions.Request){
-  const action = request.body;
-  if(!action.type){
-	  return undefined;
-  }
-  return action;
+export function githubWebhookEffect(request$:Observable<functions.Request>):Observable<Action>{
+  return request$.map(request => {
+    const githubAction:GithubWebhookAction = {
+      topic: HqTopic.GithubWebhookEvent,
+      type: (request.header('X-GitHub-Event') as GithubWebhookEventTypes),
+      payload: request.body
+    }
+    return githubAction;
+  });
 }
 
-function handleGithubWebhookEvent(request:functions.Request, response:functions.Response): void {
-	if(request.method === 'OPTIONS'){
-		response.sendStatus(200);
-		return;
-	}
-
-	const githubAction = {
-		type: request.header('X-GitHub-Event'),
-		payload: request.body
-	}
-
-	topic.publish(githubAction)
-	  .then((key) => {
-		  response.sendStatus(203);
-	  })
-	  .catch((err) => {
-		  response.sendStatus(203);
-	  });
-}
-
-
-
-export const github_webhook = functions.https.onRequest(handleGithubWebhookEvent);
